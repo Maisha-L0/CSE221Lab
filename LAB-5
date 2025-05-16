@@ -117,33 +117,114 @@ else:
     arr2=[]
 shortpath(N,M,S,D,arr1,arr2)
 
-#E-Cycle detection(WRONG):
+#D-through the jungle:
+from collections import deque, defaultdict
 import sys
-sys.setrecursionlimit(2*100000+5)
-def cycle(N,G):
-    color=[0]*(N+1)
-    def DFS(u):
-        color[u]=1
-        for v in G[u]:
-            if color[v]==1:
+input = sys.stdin.read
+def bfs(start, target, graph, N):
+    dist = [-1] * (N + 1)
+    parent = [-1] * (N + 1)
+    q = deque()
+    q.append(start)
+    dist[start] = 0
+    while q:
+        u = q.popleft()
+        if u == target:
+            break
+        for v in graph[u]:
+            if dist[v] == -1:
+                dist[v] = dist[u] + 1
+                parent[v] = u
+                q.append(v)
+    if dist[target] == -1:
+        return None
+    path = []
+    cur = target
+    while cur != -1:
+        path.append(cur)
+        cur = parent[cur]
+    path.reverse()
+    return path
+def solve():
+    data = input().split()
+    N, M, S, D, K = map(int, data[:5])
+    edges = data[5:]
+    graph = [[] for _ in range(N + 1)]
+    for i in range(0, 2 * M, 2):
+        u, v = int(edges[i]), int(edges[i + 1])
+        graph[u].append(v)
+    if S == D == K:
+        print(0)
+        print(K)
+        return
+    path1 = bfs(S, K, graph, N)
+    path2 = bfs(K, D, graph, N)
+    if not path1 or not path2:
+        print(-1)
+        return
+    final_path = path1 + path2[1:]
+    print(len(final_path) - 1)
+    print(' '.join(map(str, final_path)))
+solve()
+
+#E-Cycle detection:
+import sys
+sys.setrecursionlimit(1 << 25)
+def input():
+    return sys.stdin.readline()
+def dfs(u):
+    visited[u] = 1  
+    for v in graph[u]:
+        if visited[v] == 0:
+            if dfs(v):
                 return True
-            if color[v]==0 and DFS(v):
-                return True
-        color[u]=2
-        return False
-    for i in range(1,N+1):
-        if color[i]==0 and DFS(u):
-            return True
+        elif visited[v] == 1:
+            return True  
+    visited[u] = 2  
     return False
- 
-N,M=map(int,input().split(" "))
-Gadj=[]
-for i in range(N+1):
-    Gadj.append([])
-for j in range(M):
-    u,v=map(int,input().split(" "))
-    graph[u].append(v)
-if cycle(N,Gadj):
-    print("YES")
-else:
+def solve():
+    N, M = map(int, sys.stdin.readline().split())
+    global graph, visited
+    graph = [[] for _ in range(N + 1)]
+    visited = [0] * (N + 1)
+    for _ in range(M):
+        u, v = map(int, sys.stdin.readline().split())
+        graph[u].append(v)
+    for i in range(1, N + 1):
+        if visited[i] == 0:
+            if dfs(i):
+                print("YES")
+                return
     print("NO")
+solve()
+
+#F-diamonds under W:
+from collections import deque
+def in_bounds(x, y, R, H):
+    return 0 <= x < R and 0 <= y < H
+def solve():
+    R, H = map(int, input().split())
+    grid = [list(input().strip()) for i in range(R)]
+    visited = [[False] * H for j in range(R)]
+    max_diamonds = 0
+    directions = [(-1,0), (1,0), (0,-1), (0,1)]  
+    for i in range(R):
+        for j in range(H):
+            if not visited[i][j] and grid[i][j] != '#':
+                queue = deque([(i, j)])
+                visited[i][j] = True
+                diamond_count = 0
+                if grid[i][j] == 'D':
+                    diamond_count += 1
+                while queue:
+                    x, y = queue.popleft()
+                    for dx, dy in directions:
+                        nx, ny = x + dx, y + dy
+                        if in_bounds(nx, ny, R, H) and not visited[nx][ny] and grid[nx][ny] != '#':
+                            visited[nx][ny] = True
+                            if grid[nx][ny] == 'D':
+                                diamond_count += 1
+                            queue.append((nx, ny))
+                max_diamonds = max(max_diamonds, diamond_count)
+    print(max_diamonds)
+solve()
