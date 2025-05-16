@@ -1,0 +1,149 @@
+#A-traverse-1:
+def BFSTraverse(N,E,s=1):
+    Gadj=[]
+    for i in range(N+1):
+        Gadj.append([])    
+    for j,k in E:
+            Gadj[j].append(k)
+            Gadj[k].append(j)
+    for u in range(1,N+1):  
+        Gadj[u].sort() 
+    from collections import deque
+    Q=deque()
+    color=[0]*(N+1)
+    res=[]
+    color[s]=1
+    Q.append(s)
+    while Q:
+        u = Q.popleft()
+        res.append(u)
+        for v in Gadj[u]:
+            if color[v]==0:
+                color[v]=1
+                Q.append(v)
+    return res
+N,M=map(int,input().split(" "))
+E=[]
+for i in range(M):
+    u,v=map(int,input().split(" "))
+    E.append((u,v))
+print(" ".join(map(str, BFSTraverse(N,E))))
+
+#B-traverse-2:
+import sys
+sys.setrecursionlimit(2*100000+5)
+def DFSTraverse(G,N):
+    color=[0]*(N+1)
+    res=[]
+    def DFSVisit(u):
+        color[u]=1
+        res.append(u)
+        for v in G[u]:
+            if color[v]==0:
+                DFSVisit(v)
+            color[u]=2
+    for u in range(1,N+1):
+        if color[u]==0:
+            DFSVisit(u)
+    return res
+def result(N,M,arr1,arr2):
+    Gadj=[]
+    for i in range(N+1):
+        Gadj.append([])
+    for j in range(M):
+        Gadj[arr1[j]].append(arr2[j])
+        Gadj[arr2[j]].append(arr1[j])
+    res=DFSTraverse(Gadj,N)
+    print(' '.join(map(str,res)))
+N,M=map(int,input().split(" "))
+arr1=list(map(int,input().split(" ")))
+arr2=list(map(int,input().split(" ")))
+result(N,M,arr1,arr2)
+
+#C-lightning McQeen:
+from collections import deque
+def shortpath(N,M,S,D,arr1,arr2):
+    Gadj=[]
+    for i in range(N+1):
+        Gadj.append([])
+    if M>0:
+        for j in range(M):
+            L1=arr1[j]
+            L2=arr2[j]
+            Gadj[L1].append(L2)
+            Gadj[L2].append(L1)
+    for sorted in Gadj:
+        sorted.sort()
+    if S==D:
+        print("0")
+        print(S)
+        return
+    color=[0]*(N+1)
+    par=[-1]*(N+1)
+    dist=[-1]*(N+1)
+    Q=deque()
+    color[S]=1
+    dist[S]=0
+    Q.append(S)
+    while Q:
+        u=Q.popleft()
+        for v in Gadj[u]:
+            if color[v]==0:
+                color[v]=1
+                dist[v]=dist[u]+1
+                par[v]=u
+                Q.append(v)
+    if dist[D]==-1:
+        print("-1")
+        return
+    else:
+        print(dist[D])
+        path=[]
+        curr=D
+        while curr!=-1:
+            path.append(curr)
+            curr=par[curr]
+    for g in range(len(path)-1,-1,-1):
+            print(path[g],end=' ')
+    print()
+N,M,S,D=map(int,input().split(' '))
+arr1=input()
+arr2=input()
+if M>0:
+    arr1=list(map(int,arr1.split(' ')))
+    arr2=list(map(int,arr2.split(' ')))
+else:
+    arr1=[]
+    arr2=[]
+shortpath(N,M,S,D,arr1,arr2)
+
+#E-Cycle detection(WRONG):
+import sys
+sys.setrecursionlimit(2*100000+5)
+def cycle(N,G):
+    color=[0]*(N+1)
+    def DFS(u):
+        color[u]=1
+        for v in G[u]:
+            if color[v]==1:
+                return True
+            if color[v]==0 and DFS(v):
+                return True
+        color[u]=2
+        return False
+    for i in range(1,N+1):
+        if color[i]==0 and DFS(u):
+            return True
+    return False
+ 
+N,M=map(int,input().split(" "))
+Gadj=[]
+for i in range(N+1):
+    Gadj.append([])
+for j in range(M):
+    u,v=map(int,input().split(" "))
+    graph[u].append(v)
+if cycle(N,Gadj):
+    print("YES")
+else:
+    print("NO")
