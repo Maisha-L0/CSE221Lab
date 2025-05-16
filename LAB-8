@@ -1,0 +1,58 @@
+#A-friendship:
+import sys
+input = sys.stdin.readline
+sys.setrecursionlimit(1 << 20)
+N,K=map(int,input().split())
+def find(x):
+    while circle[x]!=x:
+        circle[x]=circle[circle[x]]
+        x=circle[x]
+    return x
+def friend(x,y):
+    xp=find(x)
+    yp=find(y)
+    if xp==yp:
+        return size[xp]
+    if size[xp]<size[yp]:
+        xp,yp= yp,xp
+    circle[yp]=xp
+    size[xp]+=size[yp]
+    return size[xp]
+circle=list(range(N+1))
+size=[1]*(N+1)
+for x in range(K):
+    a,b=map(int,input().split())
+    print(friend(a,b))
+
+#B-help the king:
+import sys
+input = sys.stdin.readline
+sys.setrecursionlimit(1 << 25)
+N,M=map(int,input().split())
+Gadj=[]
+for i in range(M):
+    u,v,w=map(int,input().split())
+    Gadj.append((w,u,v))
+Gadj.sort()
+def find(x):
+    while x!=connect[x]:
+        connect[x]=connect[connect[x]]
+        x=connect[x]
+    return x
+def road(x,y):
+    xr=find(x)
+    yr=find(y)
+    if xr==yr:
+        return False
+    if c[xr]<c[yr]:
+        xr,yr=yr,xr
+    connect[yr]=xr
+    c[xr]+=c[yr]
+    return True
+connect=list(range(N+1))
+c=[1]*(N+1)
+tcost=0
+for w,u,v in Gadj:
+    if road(u,v):
+        tcost+=w
+print(tcost)
