@@ -1,0 +1,128 @@
+#A-count inversion:
+n=int(input())
+arr=input()
+A=list(map(int,arr.split(' ')))
+def merge(a1,a2,inv):
+    i=j=0
+    sorted=[]
+    while i<len(a1) and j<len(a2):
+        if a1[i]<a2[j]:
+            sorted.append(a1[i])
+            i+=1
+        else:
+            inv+= len(a1)-i
+            sorted.append(a2[j])
+            j+=1
+    while i<len(a1):
+        sorted.append(a1[i])
+        i+=1
+    while j<len(a2):
+        sorted.append(a2[j])
+        j+=1
+    return sorted, inv
+def mergeSort(arr,inv):
+    if len(arr) <= 1:
+        return arr, inv
+    else:
+        mid = len(arr)//2
+        a1,inv1= mergeSort(arr[:mid],inv)
+        a2,inv2= mergeSort(arr[mid:],inv)
+        merged,invs=merge(a1, a2, inv)
+        return merged, inv1+inv2+invs
+i=0
+arr,invs=mergeSort(A,i)
+print(invs)
+print(" ".join(map(str,arr)))
+
+#B-pair maximization:
+n=int(input())
+arr=input()
+A=list(map(int,arr.split(' ')))
+def Emax(arr,mid):
+    i=mid-1
+    j=mid
+    max_i=float('-inf')
+    max_j=float('-inf')
+    while i>=0:
+        max_i=max(max_i,arr[i])
+        i-=1
+    while j<len(arr):
+        max_j=max(max_j,abs(arr[j]))
+        j+=1
+    RES=max_i+(max_j)**2
+    return RES
+def Emaxes(arr,m):
+    if m==2:
+        res=arr[0]+(arr[1])**2
+        return res
+    if m==1:
+        x= float('-inf')
+        return x
+    mid=m//2
+    left=Emaxes(arr[:mid],mid)
+    right=Emaxes(arr[mid:],m-mid)
+    emax=Emax(arr,mid)
+    return max(left,right,emax)
+print(Emaxes(A,n))
+
+#C-fast MOD drift:
+A=input()
+a,b=list(map(int,A.split(' ')))
+def value(a,b):
+    if b==0:
+        return 1
+    n=b//2
+    div=(value(a,n))%107
+    con=(div*div)%107
+    if b%2==1:
+        con=(con*a)%107
+    return con
+print(value(a,b))
+
+#D-fast MOD drift revisited(WRONG):
+inp=int(input())
+for i in range(inp):
+    A=input()
+    a,n,mod=list(map(int,A.split(' ')))
+    def sum_value(a,n,mod):
+        if n ==1 : 
+            return a % mod
+        mid = n //2
+        div= sum_value(a, mid, mod)
+        if n//2==0:
+            con= div
+        else:
+            con= div + fmod(a, mid + 1, mod) 
+        return (div+ fmod(a, mid, mod) * con) % mod
+    def fmod(a,n,mod):
+        if n==0:
+            return 1
+        m=n//2
+        fdiv=(fmod(a,m,mod))%mod
+        fcon=(fdiv*fdiv)%mod
+        if n%2==1:
+            fcon=(fcon*a)%mod
+        return fcon
+    print(sum_value(a,n,mod))
+
+#ordering binary tree:
+A=int(input())
+T=input()
+tr=list(map(int,T.split(' ')))
+def balancedTree(tr):
+    
+    arr=[]
+    if tr==[]:
+        return arr
+    if len(tr)>0:
+ 
+        mid=len(tr)//2
+        arr.append(tr[mid])
+        left=balancedTree(tr[:mid])
+        right=balancedTree(tr[mid+1:])
+ 
+        return arr+left+right
+    else:
+        return []
+result=balancedTree(tr)
+print(" ".join(map(str,result)))
