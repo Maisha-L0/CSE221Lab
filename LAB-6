@@ -87,28 +87,32 @@ def bfs(N,x1,y1,x2,y2):
     return -1
 print(bfs(N,x1,y1,x2,y2))
 
-#D-easy tree queries(WRONG):
+#D-easy tree queries:
 import sys
 sys.setrecursionlimit(1 << 25)
 input = sys.stdin.readline
-N, R = map(int, input().split())
-from collections import defaultdict
-tree = defaultdict(list)
-for _ in range(N - 1):
-    u, v = map(int, input().split())
-    tree[u].append(v)
-    tree[v].append(u)
-subtree_size = [0] * (N + 1)
-visited = [False] * (N + 1)
-def dfs(node):
-    visited[node] = True
+def dfs(node, parent):
     size = 1
-    for neighbor in tree[node]:
-        if not visited[neighbor]:
-            size += dfs(neighbor)
+    for neighbor in graph[node]:
+        if neighbor != parent:
+            size += dfs(neighbor, node)
     subtree_size[node] = size
     return size
-dfs(R)
+def solve():
+    N, R = map(int, input().split())
+    global graph, subtree_size
+    graph = [[] for _ in range(N + 1)]
+    subtree_size = [0] * (N + 1)
+    for x in range(N - 1):
+        u, v = map(int, input().split())
+        graph[u].append(v)
+        graph[v].append(u)
+    dfs(R, -1)
+    Q = int(input())
+    for i in range(Q):
+        X = int(input())
+        print(subtree_size[X])
+solve()
 
 #E-diameter:
 from collections import deque
