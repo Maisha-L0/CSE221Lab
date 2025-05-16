@@ -1,0 +1,202 @@
+#A-Advising:
+from collections import deque
+N,M=map(int,input().split(" "))
+Gadj=[]
+for j in range(N+1):
+    Gadj.append([])
+indeg=[0]*(N+1)
+for i in range(M):
+    u,v=map(int,input().split(" "))
+    Gadj[u].append(v)
+    indeg[v]+=1
+Q=deque()
+for x in range(1,N+1):
+    if indeg[x]==0:
+        Q.append(x)
+res=[]
+while Q:
+    U=Q.popleft()
+    res.append(U)
+    for V in Gadj[U]:
+        indeg[V]-=1
+        if indeg[V]==0:
+            Q.append(V)
+if len(res)==N:
+    print(" ".join(map(str,res)))
+else:
+    print(-1)
+
+#B-football match:
+from collections import deque
+N,M=map(int,input().split(" "))
+Gadj=[]
+for i in range(N+1):
+    Gadj.append([])
+for j in range(M):
+    u,v=map(int,input().split(" "))
+    Gadj[u].append(v)
+    Gadj[v].append(u)
+color=[-1]*(N+1)
+def bfs(S):
+    Q=deque([S])
+    color[S]=0
+    count=[0,0]
+    count[0]+=1
+    while Q:
+        U=Q.popleft()
+        for V in Gadj[U]:
+            if color[V]==-1:
+                color[V]=1-color[U]
+                count[color[V]]+=1
+                Q.append(V)
+            elif color[V]==color[U]:
+                return -1
+    return max(count[0],count[1])
+res=0
+for k in range(1,N+1):
+    if color[k]==-1:
+        out=bfs(k)
+        if out==-1:
+            print(-1)
+        elif out==0:
+            break
+        res+=out
+print(res)
+
+#C-the knight of Königsberg:
+from collections import deque
+N=int(input())
+x1,y1,x2,y2=map(int,input().split(" "))
+Cmove=[(2,1),(2,-1),(-2,1),(-2,-1),(1,2),(1,-2),(-1,2),(-1,-2)]
+def bfs(N,x1,y1,x2,y2):
+    Q=deque([(x1,y1,0)])
+    color=[]
+    for i in range(N+1):
+        color.append([0]*(N+1))
+    color[x1][y1]=1
+    while Q:
+        curx,cury,move=Q.popleft()
+        if curx==x2 and cury==y2:
+            return move
+        for p,q in Cmove:
+            nx=curx+p
+            ny=cury+q
+            if 1<=nx<=N and 1<=ny<=N and color[nx][ny]==0:
+                color[nx][ny]=1
+                Q.append((nx,ny,move+1))
+    return -1
+print(bfs(N,x1,y1,x2,y2))
+
+#D-easy tree queries(WRONG):
+import sys
+sys.setrecursionlimit(1 << 25)
+input = sys.stdin.readline
+N, R = map(int, input().split())
+from collections import defaultdict
+tree = defaultdict(list)
+for _ in range(N - 1):
+    u, v = map(int, input().split())
+    tree[u].append(v)
+    tree[v].append(u)
+subtree_size = [0] * (N + 1)
+visited = [False] * (N + 1)
+def dfs(node):
+    visited[node] = True
+    size = 1
+    for neighbor in tree[node]:
+        if not visited[neighbor]:
+            size += dfs(neighbor)
+    subtree_size[node] = size
+    return size
+dfs(R)
+
+#E-diameter:
+from collections import deque
+N=int(input())
+Gadj=[]
+for i in range(N+1):
+    Gadj.append([])
+for j in range(N-1):
+    u,v=map(int,input().split(" "))
+    Gadj[u].append(v)
+    Gadj[v].append(u)
+def bfs(S):
+    dist=[-1]*(N+1)
+    dist[S]=0
+    Q=deque()
+    Q.append(S)
+    Node=S
+    while Q:
+        U=Q.popleft()
+        for V in Gadj[U]:
+            if dist[V]==-1:
+                dist[V]=dist[U]+1
+                Q.append(V)
+                if dist[V]>dist[Node]:
+                    Node=V
+    return Node, dist[Node]
+val1,dval=bfs(1)
+val2,diameter=bfs(val1)
+print(diameter)
+print(val1,val2)
+
+#F-an ancient ordering:
+from collections import deque
+import heapq
+N=int(input())
+S=[]
+for i in range(N):
+    S.append(input().split(" "))
+Gadj=[]
+for j in range(26):
+    Gadj.append([])
+indeg=[0]*26
+inp=[False]*26
+for k in S:
+    for l in k:
+        for m in l:
+            inp[ord(m)-ord("a")]=True
+flag=False
+for a in range(N-1):
+    s1=S[a]
+    s2=S[a+1]
+    Mlen=min(len(s1[0]),len(s2[0]))
+    edge=False
+    for b in range(Mlen):
+        l1=s1[0][b]
+        l2=s2[0][b]
+        if l1!=l2:
+            u=ord(l1)-ord("a")
+            v=ord(l2)-ord("a")
+            if v not in Gadj[u]:
+                Gadj[u].append(v)
+                indeg[v]+=1
+            edge=True
+            break
+    if not edge and len(s1[0])>len(s2[0
+                                      ]):
+        flag=True
+        break
+if flag:
+    print(-1)
+else:
+    pq=[]
+    for x in range(26):
+        if inp[x] and indeg[x]==0:
+            heapq.heappush(pq,x)
+    res=[]
+    while pq:
+        U=heapq.heappop(pq)
+        res.append(chr(U+ord("a")))
+        for V in Gadj[U]:
+            indeg[V]-=1
+            if indeg[V]==0:
+                heapq.heappush(pq,V)
+    count=0
+    for p in inp:
+        if p:
+            count+=1
+    if len(res)==count:
+        print("".join(res))
+    else:
+        print(-1)
