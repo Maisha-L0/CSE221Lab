@@ -79,50 +79,81 @@ def value(a,b):
     return con
 print(value(a,b))
 
-#D-fast MOD drift revisited(WRONG):
-inp=int(input())
-for i in range(inp):
-    A=input()
-    a,n,mod=list(map(int,A.split(' ')))
-    def sum_value(a,n,mod):
-        if n ==1 : 
-            return a % mod
-        mid = n //2
-        div= sum_value(a, mid, mod)
-        if n//2==0:
-            con= div
-        else:
-            con= div + fmod(a, mid + 1, mod) 
-        return (div+ fmod(a, mid, mod) * con) % mod
-    def fmod(a,n,mod):
-        if n==0:
-            return 1
-        m=n//2
-        fdiv=(fmod(a,m,mod))%mod
-        fcon=(fdiv*fdiv)%mod
-        if n%2==1:
-            fcon=(fcon*a)%mod
-        return fcon
-    print(sum_value(a,n,mod))
+#D-fast MOD drift revisited:
+def fast_mod_sum(a, n, m):
+    seen = {}
+    seq = []
+    total = 0
+    i = 1
+    while True:
+        val = pow(a, i, m)
+        if val in seen:
+            # cycle detected
+            cycle_start = seen[val]
+            break
+        seen[val] = len(seq)
+        seq.append(val)
+        i += 1
+    pre_cycle = seq[:cycle_start]
+    cycle = seq[cycle_start:]
+    total = 0
+    n_pre = min(n, len(pre_cycle))
+    for i in range(n_pre):
+        total = (total + pre_cycle[i]) % m
+    n_left = n - n_pre
+    if n_left > 0:
+        cycle_len = len(cycle)
+        cycle_sum = sum(cycle) % m
+        full_cycles = n_left // cycle_len
+        total = (total + full_cycles * cycle_sum) % m
+        rem = n_left % cycle_len
+        for i in range(rem):
+            total = (total + cycle[i]) % m
+    return total
+import sys
+input = sys.stdin.readline
+T = int(input())
+results = []
+for i in range(T):
+    a, n, m = map(int, input().split())
+    results.append(fast_mod_sum(a, n, m))
+print("\n".join(map(str, results)))
 
 #ordering binary tree:
 A=int(input())
 T=input()
 tr=list(map(int,T.split(' ')))
 def balancedTree(tr):
-    
     arr=[]
     if tr==[]:
         return arr
     if len(tr)>0:
- 
         mid=len(tr)//2
         arr.append(tr[mid])
         left=balancedTree(tr[:mid])
         right=balancedTree(tr[mid+1:])
- 
         return arr+left+right
     else:
         return []
 result=balancedTree(tr)
 print(" ".join(map(str,result)))
+
+#F-220 trees:
+def build_post_order(in_order, pre_order):
+    idx_map = {val: idx for idx, val in enumerate(in_order)}
+    n = len(pre_order)
+    def helper(in_left, in_right, pre_index):
+        if in_left > in_right:
+            return [], pre_index
+        root_val = pre_order[pre_index]
+        root_index = idx_map[root_val]
+        left_post, next_pre_index = helper(in_left, root_index - 1, pre_index + 1)
+        right_post, next_pre_index = helper(root_index + 1, in_right, next_pre_index)
+        return left_post + right_post + [root_val], next_pre_index
+    post_order, _ = helper(0, n - 1, 0)
+    return post_order
+n = int(input())
+in_order = list(map(int, input().split()))
+pre_order = list(map(int, input().split()))
+post_order = build_post_order(in_order, pre_order)
+print(' '.join(map(str, post_order)))
