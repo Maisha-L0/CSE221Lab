@@ -1,0 +1,200 @@
+#A-shortest path:
+import heapq
+import sys
+input = sys.stdin.readline
+def dijkstra(N, graph, S, D):
+    dist = [float('inf')] * (N + 1)
+    parent = [-1] * (N + 1)
+    dist[S] = 0
+    heap = [(0, S)]
+    while heap:
+        d, u = heapq.heappop(heap)
+        if d > dist[u]:
+            continue
+        for v, w in graph[u]:
+            if dist[v] > dist[u] + w:
+                dist[v] = dist[u] + w
+                parent[v] = u
+                heapq.heappush(heap, (dist[v], v))
+    if dist[D] == float('inf'):
+        print(-1)
+        return
+    path = []
+    cur = D
+    while cur != -1:
+        path.append(cur)
+        cur = parent[cur]
+    path.reverse()
+    print(dist[D])
+    print(' '.join(map(str, path)))
+def solve():
+    N, M, S, D = map(int, input().split())
+    u = list(map(int, input().split()))
+    v = list(map(int, input().split()))
+    w = list(map(int, input().split()))
+    graph = [[] for i in range(N + 1)]
+    for i in range(M):
+        graph[u[i]].append((v[i], w[i]))
+    dijkstra(N, graph, S, D)
+solve()
+
+#B-where to meet:
+import sys
+import heapq
+input = sys.stdin.readline
+def dijkstra(n, graph, start):
+    dist = [float('inf')] * (n + 1)
+    dist[start] = 0
+    heap = [(0, start)]
+    while heap:
+        d, u = heapq.heappop(heap)
+        if d > dist[u]:
+            continue
+        for v, w in graph[u]:
+            nd = d + w
+            if nd < dist[v]:
+                dist[v] = nd
+                heapq.heappush(heap, (nd, v))
+    return dist
+def solve():
+    N, M, S, T = map(int, input().split())
+    graph = [[] for i in range(N + 1)]
+    for _ in range(M):
+        u, v, w = map(int, input().split())
+        graph[u].append((v, w))
+    distS = dijkstra(N, graph, S)
+    distT = dijkstra(N, graph, T)
+    best_time = float('inf')
+    best_node = -1
+    for i in range(1, N + 1):
+        if distS[i] != float('inf') and distT[i] != float('inf'):
+            meeting_time = max(distS[i], distT[i])
+            if meeting_time < best_time or (meeting_time == best_time and i < best_node):
+                best_time = meeting_time
+                best_node = i
+    if best_node == -1:
+        print(-1)
+    else:
+        print(best_time, best_node)
+solve()
+
+#C-minimize danger:
+import sys
+import heapq
+input = sys.stdin.readline
+def solve():
+    N, M = map(int, input().split())
+    graph = [[] for _ in range(N + 1)]
+    for _ in range(M):
+        u, v, w = map(int, input().split())
+        graph[u].append((v, w))
+        graph[v].append((u, w))
+    dist = [float('inf')] * (N + 1)
+    dist[1] = 0
+    heap = [(0, 1)]  
+    while heap:
+        curr_danger, u = heapq.heappop(heap)
+        if curr_danger > dist[u]:
+            continue
+        for v, w in graph[u]:
+            new_danger = max(curr_danger, w)
+            if new_danger < dist[v]:
+                dist[v] = new_danger
+                heapq.heappush(heap, (new_danger, v))
+    for i in range(1, N + 1):
+        print(dist[i] if dist[i] != float('inf') else -1, end=' ')
+
+#D-Beautiful path:
+import sys
+import heapq
+input = sys.stdin.readline
+def solve():
+    N, M, S, D = map(int, input().split())
+    weights = list(map(int, input().split()))
+    graph = [[] for i in range(N + 1)]
+    for _ in range(M):
+        u, v = map(int, input().split())
+        graph[u].append(v)
+    dist = [float('inf')] * (N + 1)
+    dist[S] = weights[S - 1]
+    heap = [(dist[S], S)]
+    while heap:
+        cost, u = heapq.heappop(heap)
+        if cost > dist[u]:
+            continue
+        if u == D:
+            print(cost)
+            return
+        for v in graph[u]:
+            new_cost = cost + weights[v - 1]
+            if new_cost < dist[v]:
+                dist[v] = new_cost
+                heapq.heappush(heap, (new_cost, v))
+    print(-1)
+solve()
+
+#E-pairty edge:
+import sys
+import heapq
+input = sys.stdin.readline
+def solve():
+    N, M = map(int, input().split())
+    u = list(map(int, input().split()))
+    v = list(map(int, input().split()))
+    w = list(map(int, input().split()))
+    graph = [[] for i in range(N + 1)]
+    for i in range(M):
+        graph[u[i]].append((v[i], w[i]))
+    INF = float('inf')
+    dist = [[INF, INF, INF] for _ in range(N + 1)]
+    dist[1][2] = 0
+    heap = [(0, 1, 2)]  
+    while heap:
+        cost, node, last_parity = heapq.heappop(heap)
+        if dist[node][last_parity] < cost:
+            continue
+        if node == N:
+            print(cost)
+            return
+        for nxt, wgt in graph[node]:
+            cur_parity = wgt % 2
+            if last_parity == 2 or cur_parity != last_parity:
+                new_cost = cost + wgt
+                if new_cost < dist[nxt][cur_parity]:
+                    dist[nxt][cur_parity] = new_cost
+                    heapq.heappush(heap, (new_cost, nxt, cur_parity))
+    print(-1)
+solve()
+
+#F-shorted path revisited:
+import sys
+import heapq
+input = sys.stdin.readline
+
+def solve():
+    N, M, S, D = map(int, input().split())
+    graph = [[] for x in range(N + 1)]
+    for i in range(M):
+        u, v, w = map(int, input().split())
+        graph[u].append((v, w))
+        graph[v].append((u, w))
+    INF = float('inf')
+    dist1 = [INF] * (N + 1)
+    dist2 = [INF] * (N + 1)
+    dist1[S] = 0
+    heap = [(0, S)]
+    while heap:
+        cost, u = heapq.heappop(heap)
+        if cost > dist2[u]:
+            continue     
+        for v, w in graph[u]:
+            new_cost = cost + w
+            if new_cost < dist1[v]:
+                dist2[v] = dist1[v]
+                dist1[v] = new_cost
+                heapq.heappush(heap, (new_cost, v))
+            elif dist1[v] < new_cost < dist2[v]:
+                dist2[v] = new_cost
+                heapq.heappush(heap, (new_cost, v))
+    print(dist2[D] if dist2[D] != INF else -1)
+solve()
