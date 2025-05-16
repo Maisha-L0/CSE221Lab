@@ -1,0 +1,124 @@
+#A-two sum trouble:
+t=input()
+g=input()
+l=g.split(' ')
+k=t.split(' ')
+tarsum=int(k[1])
+i=0
+j=len(l)-1
+currsum=0
+while i<j:
+    currsum=int(l[i])+int(l[j])
+    if currsum<tarsum:
+        i+=1
+    elif currsum>tarsum:
+        j-=1
+    elif currsum==tarsum:
+        print(i+1, j+1)
+        break
+else:
+    print("-1")
+
+#B-beautiful sorted list
+n=int(input())
+a=input()
+l1=list(map(int,a.split(' ')))
+m=int(input())
+b=input()
+l2=list(map(int,b.split(' ')))
+l=[]
+i=0
+j=0
+while i<len(l1) and j<len(l2):
+        if l1[i]<l2[j]:
+            l.append(l1[i])
+            i+=1
+        elif l1[i]>l2[j]:
+            l.append(l2[j])
+            j+=1
+        elif l1[i]==l2[j]:
+            l.append(l1[i])
+            i+=1
+            l.append(l2[j])
+            j+=1
+while i<len(l1):
+            l.append(l1[i])
+            i+=1
+while j<len(l2):
+            l.append(l2[j])
+            j+=1
+print(" ".join(map(str,l)))
+
+#C-longest subarray sum:
+n=input()
+a=list(map(int,n.split(' ')))
+m=input()
+b=list(map(int,m.split(' ')))
+i=0
+j=len(m)-1
+max_Length=0
+currsum=0
+for j in range(len(b)):
+    currsum+=b[j]
+    if currsum>a[1]:
+        currsum-=b[i]
+        i+=1
+    max_Length=max(max_Length,j-i+1)
+print(max_Length)
+
+#D-iterate binary string:
+t=int(input())
+for i in range(t):
+    l=input()
+    left=0
+    right=len(l)-1
+    res=-1
+    while left<=right:
+        mid=(left+right)//2
+        if '1' not in l and '0' in l:
+            print('-1')
+            break
+        elif l[mid]=='0':
+            left=mid+1
+        elif l[mid]=='1':
+            if l[mid-1]=='0':
+                res=mid+1
+                print(res)
+                break
+            elif l[0]=='1':
+                res=1
+                print(res)
+                break
+            else:
+                right=mid-1
+
+#E-count the numbers:
+inp=list(map(int,input().split(' ')))
+arr=list(map(int,input().split(' ')))
+def lower(arr,p):
+    left1=0
+    right1=len(arr)-1
+    while left1<=right1:
+        mid1=(left1+right1)//2
+        if arr[mid1]<p:
+            left1=mid1+1
+        else:
+            right1=mid1-1
+    return left1
+ 
+def higher(arr,p):
+    left2=0
+    right2=len(arr)-1
+    while left2<=right2:
+        mid2=(left2+right2)//2
+        if arr[mid2]<=p:
+            left2=mid2+1
+        else:
+            right2=mid2-1
+    return left2
+ 
+for i in range(inp[1]):
+    p1,p2=map(int,input().split(' '))
+    x=lower(arr,p1)
+    y=higher(arr,p2)
+    print(y-x)
